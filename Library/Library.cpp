@@ -157,7 +157,7 @@ class Library
                 cout <<"Genre: " << book->getGenre() << '\n';
                 cout << "Year: " << book->getYear() << '\n';
                 cout << "Quantity: " << book->getQuantity() << '\n';
-                cout << "Borrowed: " << (book->getIsBorrowed() ? "Yes" : "No") << '\n';
+                cout << "Available: " << (book->getIsAvailable() ? "Yes" : "No") << '\n';
                 cout << "---------------------------\n";
             } 
             else 
@@ -185,27 +185,32 @@ class Library
             Reader* reader = findReader(readerID);
             Book* book = findBook(bookID);
 
-            if(reader == nullptr)
+            if(!reader)
             {
                 cout << "Error: Reader ID not found.\n";
                 return false;
             }
 
-            if(book == nullptr)
+            if(!book)
             {
                 cout << "Error: Book ID not found.\n";
                 return false;
             }
 
-            if(book->getIsBorrowed())
+            if(!book->getIsAvailable())
             {
-                cout << "Error: Book is already borrowed.\n";
+                cout << "Error: Book is not available for borrowing.\n";
                 return false;
             }
 
-            bool borrowed = true;
-            book->setIsBorrowed(borrowed);
+            
             book->setQuantity(book->getQuantity() - 1);
+
+            if(book->getQuantity() == 0)
+            {
+                bool available = false;
+                book->setIsAvailable(available);
+            }
 
             reader->appendBorrowedBook(bookID);
 
@@ -218,13 +223,13 @@ class Library
             Reader* reader = findReader(readerID);
             Book* book = findBook(bookID);
 
-            if(reader == nullptr)
+            if(!reader)
             {
                 cout << "Error: Reader ID not found.\n";
                 return false;
             }
 
-            if(book == nullptr)
+            if(!book)
             {
                 cout << "Error: Book ID not found.\n";
                 return false;
@@ -236,15 +241,13 @@ class Library
                 return false;
             }
 
-            if(!book->getIsBorrowed())
-            {
-                cout << "Error: Book is not currently borrowed.\n";
-                return false;
-            }
-
-            bool borrowed = false;
-            book->setIsBorrowed(borrowed);
             book->setQuantity(book->getQuantity() + 1);
+
+            if(book->getQuantity() > 0)
+            {
+                bool available = true;
+                book->setIsAvailable(available);
+            }
 
             reader->deleteBorrowedBooks(bookID);
             
@@ -256,7 +259,7 @@ class Library
         {
             Reader *reader = findReader(readerID);
 
-            if(reader == nullptr)
+            if(!reader)
             {
                 cout << "Reader not found!\n";
                 return;
@@ -287,9 +290,9 @@ class Library
         {
             if(!books.empty())
             {
-                cout << "========================================================================================================================\n";
-                cout << "| Book ID | Title                         | Author                       | Genre          | Year | Quantity | Borrowed |\n";
-                cout << "========================================================================================================================\n";
+                cout << "=========================================================================================================================\n";
+                cout << "| Book ID | Title                         | Author                       | Genre          | Year | Quantity | Available |\n";
+                cout << "=========================================================================================================================\n";
                 for(const auto &book: books)
                 {
                     cout << "| " << std::setw(7) << book.getId() << " | "
@@ -298,7 +301,7 @@ class Library
                          << std::setw(14) << book.getGenre() << " | "
                          << std::setw(4) << book.getYear() << " | "
                          << std::setw(8) << book.getQuantity() << " | "
-                         << std::setw(8) << (book.getIsBorrowed() ? "Yes" : "No") << " |\n";
+                         << std::setw(9) << (book.getIsAvailable() ? "Yes" : "No") << " |\n";
                 }
                 cout << "========================================================================================================================\n";
             }
@@ -346,7 +349,7 @@ class Library
         {
             Reader *reader = findReader(readerID);
 
-            if(reader == nullptr)
+            if(!reader)
             {
                 return false;
             }
@@ -462,7 +465,7 @@ class Library
                 cout << "Author: " << book->getAuthor() << '\n';
                 cout << "Genre: " << book->getGenre() << '\n';
                 cout << "Year: "<< book->getYear() << '\n';
-                cout << "Borrowed: " << (book->getIsBorrowed() ? "Yes" : "No") << '\n';
+                cout << "Available: " << (book->getIsAvailable() ? "Yes" : "No") << '\n';
             }
         }
 
@@ -483,7 +486,7 @@ class Library
                 bookFile << book.getGenre() << "|";
                 bookFile << book.getYear() << "|";
                 bookFile << book.getQuantity() << "|";
-                bookFile << book.getIsBorrowed() << "\n";
+                bookFile << book.getIsAvailable() << "\n";
             }
             bookFile.close();
 
@@ -497,12 +500,17 @@ class Library
             for(auto &reader : readers)
             {
                 readerFile << reader.getId() << "|"
-                        << reader.getName() << "\n";
+                           << reader.getName() << "\n";
 
-                for(const auto &bookId : reader.getBorrowedBooks())
+                if (!reader.getBorrowedBooks().empty())
                 {
-                    readerFile << bookId << "|";
+                    for(size_t i = 0; i < reader.getBorrowedBooks().size() - 1; ++i)
+                    {
+                        readerFile << reader.getBorrowedBooks()[i] << "|";
+                    }
+                    readerFile << reader.getBorrowedBooks().back();
                 }
+                
                 readerFile << "\n";
             }
             readerFile.close();
@@ -521,7 +529,7 @@ class Library
             while(getline(inBookFile, line))
             {
                 std::stringstream ss(line);
-                string bookID, title, author, genre, yearStr, quantityStr,borrowedStr;
+                string bookID, title, author, genre, yearStr, quantityStr, availableStr;
                 
                 getline(ss, bookID, '|');
                 getline(ss, title, '|');
@@ -529,13 +537,13 @@ class Library
                 getline(ss, genre, '|');
                 getline(ss, yearStr, '|');
                 getline(ss, quantityStr, '|');
-                getline(ss, borrowedStr, '|');
+                getline(ss, availableStr, '|');
                 
                 int year = stoi(yearStr);
                 int quantity = stoi(quantityStr);
-                bool isBorrowed = (borrowedStr == "1");
+                bool isAvailable = (availableStr == "0");
                 
-                books.push_back(Book(bookID, title, author, genre, year, quantity, isBorrowed));
+                books.push_back(Book(bookID, title, author, genre, year, quantity, isAvailable));
             }
             inBookFile.close();
 

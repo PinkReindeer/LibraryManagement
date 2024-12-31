@@ -101,9 +101,9 @@ void addBookOption(Library &library)
         return;
     }
 
-    bool isBorrowed = false;
+    bool isAvailable = true;
 
-    library.appendBook(Book(bookID, bookTitle, bookAuthor, bookGenre, year, quantity, isBorrowed));
+    library.appendBook(Book(bookID, bookTitle, bookAuthor, bookGenre, year, quantity, isAvailable));
     cout << "Book added!\n";
 
     wPause();

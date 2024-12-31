@@ -12,12 +12,12 @@ class Book
         string genre;
         int year;
         int quantity;
-        bool isBorrowed;
+        bool isAvailable;
     public:
         Book(){};
 
-        Book(const string &bookID, const string &title, const string &author, const string &genre, const int year, const int quantity, const bool isBorrowed)
-            : bookID(bookID), title(title), author(author), genre(genre), year(year), quantity(quantity), isBorrowed(isBorrowed) {};
+        Book(const string &bookID, const string &title, const string &author, const string &genre, const int year, const int quantity, const bool isAvailable):
+            bookID(bookID), title(title), author(author), genre(genre), year(year), quantity(quantity), isAvailable(isAvailable) {};
 
         void setId(const string &bookID)
         {
@@ -49,9 +49,9 @@ class Book
             this->quantity = quantity;
         }
 
-        void setIsBorrowed(bool &isBorrowed)
+        void setIsAvailable(bool &isAvailable)
         {
-            this->isBorrowed = isBorrowed;
+            this->isAvailable = isAvailable;
         }
 
         string getId() const
@@ -84,8 +84,8 @@ class Book
             return quantity;
         }
 
-        bool getIsBorrowed() const
+        bool getIsAvailable() const
         {
-            return isBorrowed;
+            return isAvailable;
         }
 };
