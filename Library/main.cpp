@@ -24,6 +24,7 @@ enum class Option
     SEARCH_BOOK,
     DISPLAY_BOOKS,
     ADD_READER,
+    DELETE_READER,
     MANAGE_BORROWED,
     RETURN_BOOK,
     DISPLAY_READERS,
@@ -187,6 +188,28 @@ void deleteBookOption(Library &library)
     }
 
     cout << "Book deleted!\n";
+
+    wPause();
+}
+
+void deleteReaderOption(Library &library)
+{
+    clearScreen();
+
+    cout << "=== DELETE READER ===\n";
+
+    string id;
+    cout <<"Enter reader's ID to delete: ";
+    cin >> id;
+
+    if(!library.deleteReader(id))
+    {
+        cout << "Error: Reader ID not found!\n";
+        wPause();
+        return;
+    }
+    
+    cout << "Reader deleted!\n";
 
     wPause();
 }
@@ -377,6 +400,9 @@ void handleOption(Option option, Library &library)
         case Option::ADD_READER:
             addReaderOption(library);
             break;
+        case Option::DELETE_READER:
+            deleteReaderOption(library);
+            break;
         case Option::MANAGE_BORROWED:
             manageBorrowedBookOption(library);
             break;
@@ -449,17 +475,18 @@ int main()
         clearScreen();
 
         cout << "=== LIBRARY MANAGEMENT ===\n";
-        cout << "1. Add a book.\n";
-        cout << "2. Edit book.\n";
-        cout << "3. Delete book.\n";
-        cout << "4. Find book.\n";
-        cout << "5. Display all books.\n";
-        cout << "6. Add reader.\n";
-        cout << "7. Manage borrowed book.\n";
-        cout << "8. Return book.\n";
-        cout << "9. Display all readers.\n";
-        cout << "10. Save.\n";
-        cout << "0. Exit.\n";
+        cout << static_cast<int>(Option::ADD_BOOK) <<". Add a book.\n";
+        cout << static_cast<int>(Option::EDIT_BOOK) <<". Edit book.\n";
+        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete book.\n";
+        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Find book.\n";
+        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books.\n";
+        cout << static_cast<int>(Option::ADD_READER) << ". Add reader.\n";
+        cout << static_cast<int>(Option::DELETE_READER) << ". Delete reader.\n";
+        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Manage borrowed book.\n";
+        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return book.\n";
+        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers.\n";
+        cout << static_cast<int>(Option::SAVE) << ". Save.\n";
+        cout << static_cast<int>(Option::EXIT) << ". Exit.\n";
 
         int option = checkValidInput();
 
