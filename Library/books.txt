@@ -1,2 +1,2 @@
-1|Tam cam|Tran Viet Hung|Horror|2000|1|1
-2|Spider Man|Tran Viet Hung|Manga|2020|2|1
+1|Tam cam|Tran Viet Hung|Horror|2000|0|1
+2|Thanh giong|Tran Viet Hung|Action|1991|4|0

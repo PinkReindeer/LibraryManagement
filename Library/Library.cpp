@@ -469,6 +469,43 @@ class Library
             }
         }
 
+        // Function to escape '|' character
+        string escape(const string &str)
+        {
+            string escapedStr;
+            for (char ch : str)
+            {
+                if (ch == '|')
+                {
+                    escapedStr += "\\|";
+                }
+                else
+                {
+                    escapedStr += ch;
+                }
+            }
+            return escapedStr;
+        }
+
+        // Function to unescape '|' character
+        string unescape(const string &str)
+        {
+            string unescapedStr;
+            for (size_t i = 0; i < str.size(); ++i)
+            {
+                if (str[i] == '\\' && i + 1 < str.size() && str[i + 1] == '|')
+                {
+                    unescapedStr += '|';
+                    ++i;
+                }
+                else
+                {
+                    unescapedStr += str[i];
+                }
+            }
+            return unescapedStr;
+        }
+
         void saveToFile(const char *bookFileName, const char *readerFileName)
         {
             std::ofstream bookFile(bookFileName);
@@ -480,13 +517,13 @@ class Library
 
             for(auto &book : books)
             {
-                bookFile << book.getId() << "|";
-                bookFile << book.getTitle() << "|";
-                bookFile << book.getAuthor() << "|";
-                bookFile << book.getGenre() << "|";
+                bookFile << escape(book.getId()) << "|";
+                bookFile << escape(book.getTitle()) << "|";
+                bookFile << escape(book.getAuthor()) << "|";
+                bookFile << escape(book.getGenre()) << "|";
                 bookFile << book.getYear() << "|";
                 bookFile << book.getQuantity() << "|";
-                bookFile << book.getIsAvailable() << "\n";
+                bookFile << (book.getIsAvailable() ? "1" : "0") << "\n";
             }
             bookFile.close();
 
@@ -499,16 +536,16 @@ class Library
 
             for(auto &reader : readers)
             {
-                readerFile << reader.getId() << "|"
-                           << reader.getName() << "\n";
+                readerFile << escape(reader.getId()) << "|"
+                           << escape(reader.getName()) << "\n";
 
                 if (!reader.getBorrowedBooks().empty())
                 {
                     for(size_t i = 0; i < reader.getBorrowedBooks().size() - 1; ++i)
                     {
-                        readerFile << reader.getBorrowedBooks()[i] << "|";
+                        readerFile << escape(reader.getBorrowedBooks()[i]) << "|";
                     }
-                    readerFile << reader.getBorrowedBooks().back();
+                    readerFile << escape(reader.getBorrowedBooks().back());
                 }
                 
                 readerFile << "\n";
@@ -541,9 +578,9 @@ class Library
                 
                 int year = stoi(yearStr);
                 int quantity = stoi(quantityStr);
-                bool isAvailable = (availableStr == "0");
+                bool isAvailable = (availableStr == "1");
                 
-                books.push_back(Book(bookID, title, author, genre, year, quantity, isAvailable));
+                books.push_back(Book(unescape(bookID), unescape(title), unescape(author), unescape(genre), year, quantity, isAvailable));
             }
             inBookFile.close();
 
@@ -568,11 +605,11 @@ class Library
                     string bookID;
                     while(getline(ssBooks, bookID, '|'))
                     {
-                        borrowedBooks.push_back(bookID);
+                        borrowedBooks.push_back(unescape(bookID));
                     }
                 }
 
-                readers.push_back(Reader(readerID, name, borrowedBooks));
+                readers.push_back(Reader(unescape(readerID), unescape(name), borrowedBooks));
             }
             inReaderFile.close();
         }
