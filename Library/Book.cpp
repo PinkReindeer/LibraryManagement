@@ -2,6 +2,7 @@
 #include <iostream>
 
 using std::string;
+using std::cout;
 
 class Book
 {
@@ -17,7 +18,10 @@ class Book
         Book(){};
 
         Book(const string &bookID, const string &title, const string &author, const string &genre, const int year, const int quantity, const bool isAvailable):
-            bookID(bookID), title(title), author(author), genre(genre), year(year), quantity(quantity), isAvailable(isAvailable) {};
+            bookID(bookID), title(title), author(author), genre(genre), year(year), quantity(quantity), isAvailable(isAvailable)
+        {
+            cout << "Book created: " << bookID << '\n';
+        };
 
         void setId(const string &bookID)
         {

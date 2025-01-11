@@ -2,6 +2,8 @@
     "files.associations": {
         "*.json": "jsonc",
         "xstring": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp"
     }
 }

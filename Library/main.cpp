@@ -294,7 +294,7 @@ void addReaderOption(Library &library)
     string readerName;
     cout << "Name: ";
     cin.ignore();
-    getline(cin,readerName);
+    getline(cin, readerName);
 
     std::vector<string> emptyBorrowedBook;
 
@@ -367,15 +367,18 @@ void displayReaderOption(const Library &library)
 
 void saveOption(Library &library)
 {
+    cout << "Saving library data...\n";
     library.saveToFile("books.txt", "readers.txt");
     cout << "Library data saved!\n";
     wPause();
 }
 
-void exitOption()
+void exitOption(Library &library)
 {
-    cout << "Thank you for using!\n";
+    cout << "Exiting...\n";
+    library.saveToFile("books.txt", "readers.txt");
     running = false;
+    cout << "Thank you for using!\n";
 }
 
 void handleOption(Option option, Library &library)
@@ -416,14 +419,10 @@ void handleOption(Option option, Library &library)
             saveOption(library);
             break;
         case Option::EXIT:
-            exitOption();
+            exitOption(library);
             break;
         default:
             break;
-    }
-    if (option == Option::EXIT)
-    {
-        library.saveToFile("books.txt", "readers.txt");
     }
 }
 
@@ -468,7 +467,9 @@ int main()
 {
     Library library;
 
+    cout << "Loading library data...\n";
     library.loadFromFile("books.txt", "readers.txt");
+    cout << "Library data loaded.\n";
 
     while(running)
     {
