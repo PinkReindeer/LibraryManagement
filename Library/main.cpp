@@ -32,6 +32,24 @@ enum class Option
     INVALID
 };
 
+void wPause();
+void clearScreen();
+void addBookOption(Library &library);
+void editBookOption(Library &library);
+void deleteBookOption(Library &library);
+void deleteReaderOption(Library &library);
+void searchBookOption(Library &library);
+void displayBookOption(Library &library);
+void addReaderOption(Library &library);
+void manageBorrowedBookOption(Library &library);
+void returnBookOption(Library &library);
+void displayReaderOption(const Library &library);
+void saveOption(Library &library);
+void exitOption(Library &library);
+void handleOption(Option option, Library &library);
+int checkValidInput();
+
+// Pause and wait for user input
 void wPause()
 {
     cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
@@ -39,6 +57,7 @@ void wPause()
     cin.get();
 }
 
+// Clear the screen
 void clearScreen()
 {
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -50,6 +69,7 @@ void clearScreen()
     SetConsoleCursorPosition(hStdOut, coord);
 }
 
+// Add a new book to the library
 void addBookOption(Library &library)
 {
     clearScreen();
@@ -110,6 +130,7 @@ void addBookOption(Library &library)
     wPause();
 }
 
+// Edit an existing book in the library
 void editBookOption(Library &library)
 {
     clearScreen();
@@ -170,6 +191,7 @@ void editBookOption(Library &library)
     wPause();
 }
 
+// Delete a book from the library
 void deleteBookOption(Library &library)
 {
     clearScreen();
@@ -192,6 +214,7 @@ void deleteBookOption(Library &library)
     wPause();
 }
 
+// Delete a reader from the library
 void deleteReaderOption(Library &library)
 {
     clearScreen();
@@ -214,6 +237,7 @@ void deleteReaderOption(Library &library)
     wPause();
 }
 
+// Search for a book in the library
 void searchBookOption(Library &library)
 {
     clearScreen();
@@ -222,12 +246,17 @@ void searchBookOption(Library &library)
     cout << "1. Search by Title\n";
     cout << "2. Search by Genre\n";
     cout << "3. Search by ID\n";
-    cout << "Choose your option: ";
+    
+    int option = checkValidInput();
 
-    string option;
-    cin >> option;
+    if(option < 1 || option > 3)
+    {
+        cout << "Invalid option! Please choose between 1 and 3.\n";
+        wPause();
+        return;
+    }
 
-    switch(std::stoi(option))
+    switch(option)
     {
         case 1:
             {
@@ -260,9 +289,11 @@ void searchBookOption(Library &library)
             cout << "Invalid option!";
             break;
     }
-    wPause();
+    cout << "Press Enter to continue...";
+    cin.get();
 }
 
+// Display all books in the library
 void displayBookOption(Library &library)
 {
     clearScreen();
@@ -274,6 +305,7 @@ void displayBookOption(Library &library)
     wPause();
 }
 
+// Add a new reader to the library
 void addReaderOption(Library &library)
 {
     clearScreen();
@@ -283,6 +315,7 @@ void addReaderOption(Library &library)
     string readerID;
     cout << "ID: ";
     cin >> readerID;
+    cin.ignore();
 
     if(library.isReaderIdExist(readerID))
     {
@@ -293,7 +326,6 @@ void addReaderOption(Library &library)
 
     string readerName;
     cout << "Name: ";
-    cin.ignore();
     getline(cin, readerName);
 
     std::vector<string> emptyBorrowedBook;
@@ -301,9 +333,11 @@ void addReaderOption(Library &library)
     library.appendReader(Reader(readerID, readerName, emptyBorrowedBook));
     cout << "Reader added!\n";
 
-    wPause();
+    cout << "Press Enter to continue...";
+    cin.get();
 }
 
+// Manage borrowed books for a reader
 void manageBorrowedBookOption(Library &library)
 {
     clearScreen();
@@ -329,6 +363,7 @@ void manageBorrowedBookOption(Library &library)
     wPause();
 }
 
+// Return a borrowed book to the library
 void returnBookOption(Library &library)
 {
     clearScreen();
@@ -354,6 +389,7 @@ void returnBookOption(Library &library)
     wPause();
 }
 
+// Display all readers in the library
 void displayReaderOption(const Library &library)
 {
     clearScreen();
@@ -365,6 +401,7 @@ void displayReaderOption(const Library &library)
     wPause();
 }
 
+// Save library data to files
 void saveOption(Library &library)
 {
     cout << "Saving library data...\n";
@@ -373,6 +410,7 @@ void saveOption(Library &library)
     wPause();
 }
 
+// Exit the program and save library data
 void exitOption(Library &library)
 {
     cout << "Exiting...\n";
@@ -381,6 +419,7 @@ void exitOption(Library &library)
     cout << "Thank you for using!\n";
 }
 
+// Handle user option
 void handleOption(Option option, Library &library)
 {
     switch (option) 
@@ -426,6 +465,7 @@ void handleOption(Option option, Library &library)
     }
 }
 
+// Check if the user input is a valid option
 int checkValidInput() {
     int option = 0;
     string input;
@@ -476,18 +516,18 @@ int main()
         clearScreen();
 
         cout << "=== LIBRARY MANAGEMENT ===\n";
-        cout << static_cast<int>(Option::ADD_BOOK) <<". Add a book.\n";
-        cout << static_cast<int>(Option::EDIT_BOOK) <<". Edit book.\n";
-        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete book.\n";
-        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Find book.\n";
-        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books.\n";
-        cout << static_cast<int>(Option::ADD_READER) << ". Add reader.\n";
-        cout << static_cast<int>(Option::DELETE_READER) << ". Delete reader.\n";
-        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Manage borrowed book.\n";
-        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return book.\n";
-        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers.\n";
-        cout << static_cast<int>(Option::SAVE) << ". Save.\n";
-        cout << static_cast<int>(Option::EXIT) << ". Exit.\n";
+        cout << static_cast<int>(Option::ADD_BOOK) << ". Add a book\n";
+        cout << static_cast<int>(Option::EDIT_BOOK) << ". Edit a book\n";
+        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete a book\n";
+        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Search for a book\n";
+        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books\n";
+        cout << static_cast<int>(Option::ADD_READER) << ". Add a reader\n";
+        cout << static_cast<int>(Option::DELETE_READER) << ". Delete a reader\n";
+        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Borrow a book\n";
+        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return a book\n";
+        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers\n";
+        cout << static_cast<int>(Option::SAVE) << ". Save library data\n";
+        cout << static_cast<int>(Option::EXIT) << ". Exit\n";
 
         int option = checkValidInput();
 

@@ -14,7 +14,7 @@ class Library
         std::vector<Book> books;
         std::vector<Reader> readers;
 
-        //Find reader id
+        // Find reader by ID
         Reader* findReader(const string &readerID)
         {
             auto it = std::find_if(readers.begin(), readers.end(), [&readerID](Reader &reader)
@@ -29,7 +29,7 @@ class Library
             return nullptr;
         }
 
-        //Find book by id
+        // Find book by ID
         Book* findBook(const string &bookID)
         {
             auto it = std::find_if(books.begin(), books.end(), [&bookID](Book &book)
@@ -50,33 +50,33 @@ class Library
         Library(const std::vector<Book> &books, const std::vector<Reader> &readers)
             : books(books), readers(readers) {};
 
-        //Check existing book ID
+        // Check if book ID exists
         bool isBookIdExist(const string &bookID)
         {
             return findBook(bookID) != nullptr;
         }
 
-        //Check existing reader ID
+        // Check if reader ID exists
         bool isReaderIdExist(const string &readerID)
         {
             return findReader(readerID) != nullptr;
         }
 
-        //Add book
+        // Add a book to the library
         void appendBook(const Book &book)
         {
             cout << "Appending book: " << book.getTitle() << '\n';
             books.push_back(book);
         }
         
-        //Add reader
+        // Add a reader to the library
         void appendReader(const Reader &reader)
         {
             cout << "Appending reader: " << reader.getName() << '\n';
             readers.push_back(reader);
         }
 
-        //Edit book title
+        // Edit book title
         bool editBookTitle(const string &bookID, string &newTitle)
         {
             Book* book = findBook(bookID);
@@ -89,7 +89,7 @@ class Library
             return false;
         }
 
-        //Edit book author
+        // Edit book author
         bool editBookAuthor(const string &bookID, string &newAuthor)
         {
             Book* book = findBook(bookID);
@@ -102,7 +102,7 @@ class Library
             return false;
         }
 
-        //Edit book genre
+        // Edit book genre
         bool editBookGenre(const string &bookID, string &newGenre)
         {
             Book* book = findBook(bookID);
@@ -115,7 +115,7 @@ class Library
             return false;
         }
 
-        //Edit book year
+        // Edit book year
         bool editBookYear(const string &bookID, int &newYear)
         {
             Book* book = findBook(bookID);
@@ -128,7 +128,7 @@ class Library
             return false;
         }
 
-        //Edit a book in detail
+        // Edit book details
         bool editBookDetail(const string &bookID, const string &newTitle, const string &newAuthor, const string &newGenre, const int &newYear, const int &newQuantity)
         {
             Book *book = findBook(bookID);
@@ -152,7 +152,7 @@ class Library
             return false;
         }
 
-        //Display a book in detail
+        // Display book details
         void displayBookDetail(const string &bookID)
         {
             Book *book = findBook(bookID);
@@ -175,7 +175,7 @@ class Library
             }
         }
 
-        //Edit reader name
+        // Edit reader name
         bool editReaderName(const string &readerID, string &newName)
         {
             Reader *reader = findReader(readerID);
@@ -188,7 +188,7 @@ class Library
             return false;
         }
 
-        //Borrow a book
+        // Borrow a book
         bool borrowBook(const string &bookID, const string &readerID)
         {
             Reader* reader = findReader(readerID);
@@ -226,7 +226,7 @@ class Library
             return true;
         }
 
-        //Return a book
+        // Return a book
         bool returnBook(const string &bookID, const string &readerID)
         {
             Reader* reader = findReader(readerID);
@@ -263,7 +263,7 @@ class Library
             return true;
         }
 
-        //Display borrowed books
+        // Display borrowed books
         void displayBorrowedBooks(const string &readerID)
         {
             Reader *reader = findReader(readerID);
@@ -295,24 +295,48 @@ class Library
             }
         }
 
+        // Display all books in the library
         void displayBooks() const
         {
             if(!books.empty())
             {
-                cout << "=========================================================================================================================\n";
-                cout << "| Book ID | Title                         | Author                       | Genre          | Year | Quantity | Available |\n";
-                cout << "=========================================================================================================================\n";
+                size_t maxIdWidth = 5;
+                size_t maxTitleWidth = 5;
+                size_t maxAuthorWidth = 10;
+                size_t maxGenreWidth = 8;
+                size_t maxYearWidth = 4;
+                size_t maxQuantityWidth = 5;
+                size_t maxAvailableWidth = 8;
+
                 for(const auto &book: books)
                 {
-                    cout << "| " << std::setw(7) << book.getId() << " | "
-                         << std::setw(29) << book.getTitle() << " | "
-                         << std::setw(28) << book.getAuthor() << " | "
-                         << std::setw(14) << book.getGenre() << " | "
-                         << std::setw(4) << book.getYear() << " | "
-                         << std::setw(8) << book.getQuantity() << " | "
-                         << std::setw(9) << (book.getIsAvailable() ? "Yes" : "No") << " |\n";
+                    maxIdWidth = (std::max)(maxIdWidth, book.getId().length());
+                    maxTitleWidth = (std::max)(maxTitleWidth, book.getTitle().length());
+                    maxAuthorWidth = (std::max)(maxAuthorWidth, book.getAuthor().length());
+                    maxGenreWidth = (std::max)(maxGenreWidth, book.getGenre().length());
                 }
-                cout << "========================================================================================================================\n";
+
+                cout << std::string(maxIdWidth + maxTitleWidth + maxAuthorWidth + maxGenreWidth + maxYearWidth + maxQuantityWidth + maxAvailableWidth + 22, '=') << '\n';
+                cout << "| " << std::setw(maxIdWidth) << "Book ID" << " | "
+                     << std::setw(maxTitleWidth) << "Title" << " | "
+                     << std::setw(maxAuthorWidth) << "Author" << " | "
+                     << std::setw(maxGenreWidth) << "Genre" << " | "
+                     << std::setw(maxYearWidth) << "Year" << " | "
+                     << std::setw(maxQuantityWidth) << "Quantity" << " | "
+                     << std::setw(maxAvailableWidth) << "Available" << " |\n";
+                cout << std::string(maxIdWidth + maxTitleWidth + maxAuthorWidth + maxGenreWidth + maxYearWidth + maxQuantityWidth + maxAvailableWidth + 22, '=') << '\n';
+
+                for(const auto &book: books)
+                {
+                    cout << "| " << std::setw(maxIdWidth) << book.getId() << " | "
+                         << std::setw(maxTitleWidth) << book.getTitle() << " | "
+                         << std::setw(maxAuthorWidth) << book.getAuthor() << " | "
+                         << std::setw(maxGenreWidth) << book.getGenre() << " | "
+                         << std::setw(maxYearWidth) << book.getYear() << " | "
+                         << std::setw(maxQuantityWidth) << book.getQuantity() << " | "
+                         << std::setw(maxAvailableWidth) << (book.getIsAvailable() ? "Yes" : "No") << " |\n";
+                }
+                cout << std::string(maxIdWidth + maxTitleWidth + maxAuthorWidth + maxGenreWidth + maxYearWidth + maxQuantityWidth + maxAvailableWidth + 22, '=') << '\n';
             }
             else
             {
@@ -320,20 +344,34 @@ class Library
             }
         }
 
+        // Display all readers in the library
         void displayReaders() const
         {
             if(!readers.empty())
             {
-                cout << "=============================================================\n";
-                cout << "| Reader ID | Name                         | Books Borrowed |\n";
-                cout << "=============================================================\n";
+                size_t maxIdWidth = 5;
+                size_t maxNameWidth = 10;
+                size_t maxBorrowedWidth = 5;
+
                 for(const auto &reader: readers)
                 {
-                    cout << "| " << std::setw(9) << reader.getId() << " | "
-                         << std::setw(28) << reader.getName() << " | "
-                         << std::setw(14) << reader.getTotalBorrowedBooks() << " |\n";
+                    maxIdWidth = (std::max)(maxIdWidth, reader.getId().length());
+                    maxNameWidth = (std::max)(maxNameWidth, reader.getName().length());
                 }
-                cout << "=============================================================\n";
+
+                cout << std::string(maxIdWidth + maxNameWidth + maxBorrowedWidth + 10, '=') << '\n';
+                cout << "| " << std::setw(maxIdWidth) << "Reader ID" << " | "
+                     << std::setw(maxNameWidth) << "Name" << " | "
+                     << std::setw(maxBorrowedWidth) << "Books Borrowed" << " |\n";
+                cout << std::string(maxIdWidth + maxNameWidth + maxBorrowedWidth + 10, '=') << '\n';
+
+                for(const auto &reader: readers)
+                {
+                    cout << "| " << std::setw(maxIdWidth) << reader.getId() << " | "
+                         << std::setw(maxNameWidth) << reader.getName() << " | "
+                         << std::setw(maxBorrowedWidth) << reader.getTotalBorrowedBooks() << " |\n";
+                }
+                cout << std::string(maxIdWidth + maxNameWidth + maxBorrowedWidth + 10, '=') << '\n';
             }
             else
             {
@@ -341,7 +379,7 @@ class Library
             }
         }
 
-        //Check if the book is borrowed
+        // Check if the book is borrowed by any reader
         bool isBorrowedBook(const string &bookID)
         {
             for (auto &reader : readers)
@@ -354,6 +392,7 @@ class Library
             return false;
         }
 
+        // Check if the book is borrowed by a reader
         bool isBorrowedBook(const string &bookID, const string &readerID)
         {
             Reader *reader = findReader(readerID);
@@ -370,7 +409,7 @@ class Library
             return false;
         }
 
-        //Get total of books borrowed by reader
+        // Get total number of books borrowed by a reader
         int getReaderBorrowedBook(const string &readerID)
         {
             Reader *reader = findReader(readerID);
@@ -382,7 +421,7 @@ class Library
                 return 0;
         }
 
-        //Delete book
+        // Delete a book from the library
         bool deleteBook(const string &bookID)
         {
             auto it = std::find_if(books.begin(), books.end(), [&bookID](Book &book)
@@ -398,7 +437,7 @@ class Library
             return false;
         }
 
-        //Delete reader
+        // Delete a reader from the library
         bool deleteReader(const string &readerID)
         {
             auto it = std::find_if(readers.begin(), readers.end(), [&readerID](Reader &reader)
@@ -429,7 +468,7 @@ class Library
             return false;
         }
 
-        //Find book by title
+        // Find books by title
         std::vector<Book*> findBookByTitle(const string &findTitle)
         {
             std::vector<Book*> foundBooks;
@@ -444,7 +483,7 @@ class Library
             return foundBooks;
         }
 
-        //Find book by genre
+        // Find books by genre
         std::vector<Book*> findBookByGenre(const string &findGenre)
         {
             std::vector<Book*> foundBooks;
@@ -459,6 +498,7 @@ class Library
             return foundBooks;
         }
 
+        // Find books by ID
         std::vector<Book*> findBookByID(const string &findBookID)
         {
             std::vector<Book*> foundBooks;
@@ -471,7 +511,7 @@ class Library
             return foundBooks;
         }
 
-        //Display search result
+        // Display search results
         void displaySearchResult(const std::vector<Book*> &foundBooks)
         {
             if(foundBooks.empty())
@@ -493,6 +533,7 @@ class Library
             }
         }
 
+        // Save library data to file
         void saveToFile(const char *bookFileName, const char *readerFileName)
         {
             std::ofstream bookFile(bookFileName, std::ios::binary);
@@ -571,6 +612,7 @@ class Library
             cout << "Readers saved successfully.\n";
         }
 
+        // Load library data from file
         void loadFromFile(const char *bookFileName, const char *readerFileName)
         {
             std::ifstream inBookFile(bookFileName, std::ios::binary);
@@ -631,7 +673,7 @@ class Library
             inReaderFile.read(reinterpret_cast<char*>(&readerCount), sizeof(readerCount));
             cout << "Loading " << readerCount << " readers from file.\n";
 
-            if (readerCount > 1000000) // Arbitrary large number to catch potential errors
+            if (readerCount > 1000000)
             {
                 cout << "Error: Reader count is too large, possible file corruption.\n";
                 inReaderFile.close();
