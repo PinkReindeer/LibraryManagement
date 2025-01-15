@@ -49,6 +49,48 @@ void exitOption(Library &library);
 void handleOption(Option option, Library &library);
 int checkValidInput();
 
+int main()
+{
+    Library library;
+
+    cout << "Loading library data...\n";
+    library.loadFromFile("books.txt", "readers.txt");
+    cout << "Library data loaded.\n";
+
+    while(running)
+    {
+        clearScreen();
+
+        cout << "=== LIBRARY MANAGEMENT ===\n";
+        cout << static_cast<int>(Option::ADD_BOOK) << ". Add a book\n";
+        cout << static_cast<int>(Option::EDIT_BOOK) << ". Edit a book\n";
+        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete a book\n";
+        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Search for a book\n";
+        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books\n";
+        cout << static_cast<int>(Option::ADD_READER) << ". Add a reader\n";
+        cout << static_cast<int>(Option::DELETE_READER) << ". Delete a reader\n";
+        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Borrow a book\n";
+        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return a book\n";
+        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers\n";
+        cout << static_cast<int>(Option::SAVE) << ". Save library data\n";
+        cout << static_cast<int>(Option::EXIT) << ". Exit\n";
+
+        int option = checkValidInput();
+
+        if (option >= static_cast<int>(Option::EXIT) && option <= static_cast<int>(Option::SAVE))
+        {
+            handleOption(static_cast<Option>(option), library);
+        }
+        else
+        {
+            cout << "Invalid option! Please choose between " << static_cast<int>(Option::EXIT) << " and " << static_cast<int>(Option::SAVE) << '\n';
+            wPause();
+        }
+    }
+
+    return 0;
+}
+
 // Pause and wait for user input
 void wPause()
 {
@@ -501,46 +543,4 @@ int checkValidInput() {
         }
     }
     return option;
-}
-
-int main()
-{
-    Library library;
-
-    cout << "Loading library data...\n";
-    library.loadFromFile("books.txt", "readers.txt");
-    cout << "Library data loaded.\n";
-
-    while(running)
-    {
-        clearScreen();
-
-        cout << "=== LIBRARY MANAGEMENT ===\n";
-        cout << static_cast<int>(Option::ADD_BOOK) << ". Add a book\n";
-        cout << static_cast<int>(Option::EDIT_BOOK) << ". Edit a book\n";
-        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete a book\n";
-        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Search for a book\n";
-        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books\n";
-        cout << static_cast<int>(Option::ADD_READER) << ". Add a reader\n";
-        cout << static_cast<int>(Option::DELETE_READER) << ". Delete a reader\n";
-        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Borrow a book\n";
-        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return a book\n";
-        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers\n";
-        cout << static_cast<int>(Option::SAVE) << ". Save library data\n";
-        cout << static_cast<int>(Option::EXIT) << ". Exit\n";
-
-        int option = checkValidInput();
-
-        if (option >= static_cast<int>(Option::EXIT) && option <= static_cast<int>(Option::SAVE))
-        {
-            handleOption(static_cast<Option>(option), library);
-        }
-        else
-        {
-            cout << "Invalid option! Please choose between " << static_cast<int>(Option::EXIT) << " and " << static_cast<int>(Option::SAVE) << '\n';
-            wPause();
-        }
-    }
-
-    return 0;
 }
