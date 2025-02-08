@@ -15,7 +15,7 @@ using std::getline;
 
 bool running = true;
 
-enum class Option
+enum Option
 {
     EXIT = 0,
     ADD_BOOK,
@@ -48,6 +48,7 @@ void saveOption(Library &library);
 void exitOption(Library &library);
 void handleOption(Option option, Library &library);
 int checkValidInput();
+string getInput(const string &prompt);
 
 int main()
 {
@@ -62,28 +63,28 @@ int main()
         clearScreen();
 
         cout << "=== LIBRARY MANAGEMENT ===\n";
-        cout << static_cast<int>(Option::ADD_BOOK) << ". Add a book\n";
-        cout << static_cast<int>(Option::EDIT_BOOK) << ". Edit a book\n";
-        cout << static_cast<int>(Option::DELETE_BOOK) << ". Delete a book\n";
-        cout << static_cast<int>(Option::SEARCH_BOOK) << ". Search for a book\n";
-        cout << static_cast<int>(Option::DISPLAY_BOOKS) << ". Display all books\n";
-        cout << static_cast<int>(Option::ADD_READER) << ". Add a reader\n";
-        cout << static_cast<int>(Option::DELETE_READER) << ". Delete a reader\n";
-        cout << static_cast<int>(Option::MANAGE_BORROWED) << ". Borrow a book\n";
-        cout << static_cast<int>(Option::RETURN_BOOK) << ". Return a book\n";
-        cout << static_cast<int>(Option::DISPLAY_READERS) << ". Display all readers\n";
-        cout << static_cast<int>(Option::SAVE) << ". Save library data\n";
-        cout << static_cast<int>(Option::EXIT) << ". Exit\n";
+        cout << Option::ADD_BOOK << ". Add a book\n";
+        cout << Option::EDIT_BOOK << ". Edit a book\n";
+        cout << Option::DELETE_BOOK << ". Delete a book\n";
+        cout << Option::SEARCH_BOOK << ". Search for a book\n";
+        cout << Option::DISPLAY_BOOKS << ". Display all books\n";
+        cout << Option::ADD_READER<< ". Add a reader\n";
+        cout << Option::DELETE_READER << ". Delete a reader\n";
+        cout << Option::MANAGE_BORROWED << ". Borrow a book\n";
+        cout << Option::RETURN_BOOK << ". Return a book\n";
+        cout << Option::DISPLAY_READERS << ". Display all readers\n";
+        cout << Option::SAVE << ". Save library data\n";
+        cout << Option::EXIT << ". Exit\n";
 
         int option = checkValidInput();
 
-        if (option >= static_cast<int>(Option::EXIT) && option <= static_cast<int>(Option::SAVE))
+        if (option >= Option::EXIT && option <= Option::SAVE)
         {
-            handleOption(static_cast<Option>(option), library);
+            handleOption(Option(option), library);
         }
         else
         {
-            cout << "Invalid option! Please choose between " << static_cast<int>(Option::EXIT) << " and " << static_cast<int>(Option::SAVE) << '\n';
+            cout << "Invalid option! Please choose between " << Option::EXIT << " and " << Option::SAVE << '\n';
             wPause();
         }
     }
@@ -111,6 +112,15 @@ void clearScreen()
     SetConsoleCursorPosition(hStdOut, coord);
 }
 
+// Helper function to get input for a string
+string getInput(const string &prompt)
+{
+    string input;
+    cout << prompt;
+    cin >> input;
+    return input;
+}
+
 // Add a new book to the library
 void addBookOption(Library &library)
 {
@@ -118,9 +128,7 @@ void addBookOption(Library &library)
 
     cout << "=== ADD BOOK ===\n";
 
-    string bookID;
-    cout << "Id: ";
-    cin >> bookID;
+    string bookID = getInput("Id: ");
     
     if(library.isBookIdExist(bookID))
     {
@@ -179,9 +187,7 @@ void editBookOption(Library &library)
 
     cout << "=== EDIT BOOK ===\n";
 
-    string bookID;
-    cout << "Enter book's ID to edit: ";
-    cin >> bookID;
+    string bookID = getInput("Enter book's ID to edit: ");
     
     if(!library.isBookIdExist(bookID))
     {
@@ -240,11 +246,9 @@ void deleteBookOption(Library &library)
 
     cout << "=== DELETE BOOK ===\n";
 
-    string id;
-    cout <<"Enter book's ID to delete: ";
-    cin >> id;
+    string bookID = getInput("Enter book's ID to delete: ");
 
-    if(!library.deleteBook(id))
+    if(!library.deleteBook(bookID))
     {
         cout << "Error: Book ID not found!\n";
         wPause();
@@ -263,11 +267,9 @@ void deleteReaderOption(Library &library)
 
     cout << "=== DELETE READER ===\n";
 
-    string id;
-    cout <<"Enter reader's ID to delete: ";
-    cin >> id;
+    string readerID = getInput("Enter reader's ID to delete: ");
 
-    if(!library.deleteReader(id))
+    if(!library.deleteReader(readerID))
     {
         cout << "Error: Reader ID not found!\n";
         wPause();
@@ -323,6 +325,7 @@ void searchBookOption(Library &library)
                 string searchBookID;
                 cout << "Enter book ID to search: ";
                 cin >> searchBookID;
+                cin.ignore();
                 library.displaySearchResult(library.findBookByID(searchBookID));
                 break;
             }
@@ -354,9 +357,7 @@ void addReaderOption(Library &library)
 
     cout << "=== ADD READER ===\n";
 
-    string readerID;
-    cout << "ID: ";
-    cin >> readerID;
+    string readerID = getInput("ID: ");
     cin.ignore();
 
     if(library.isReaderIdExist(readerID))
@@ -386,13 +387,8 @@ void manageBorrowedBookOption(Library &library)
 
     cout << "=== BORROW BOOK ===\n";
 
-    string bookID;
-    cout << "Book ID: ";
-    cin >> bookID;
-
-    string readerID;
-    cout << "Reader ID: ";
-    cin >> readerID;
+    string bookID = getInput("Book ID: ");
+    string readerID = getInput("Reader ID: ");
 
     if(!library.borrowBook(bookID, readerID))
     {
@@ -412,13 +408,8 @@ void returnBookOption(Library &library)
 
     cout << "=== RETURN BOOK ===\n";
 
-    string bookID;
-    cout << "Book ID: ";
-    cin >> bookID;
-
-    string readerID;
-    cout << "Reader ID: ";
-    cin >> readerID;
+    string bookID = getInput("Book ID: ");
+    string readerID = getInput("Reader ID: ");
 
     if(!library.returnBook(bookID, readerID))
     {
@@ -518,28 +509,14 @@ int checkValidInput() {
         cout << "Enter your option: ";
         cin >> input;
 
-        try
+        if (input.empty() || !std::all_of(input.begin(), input.end(), ::isdigit))
         {
-            if (input.empty())
-            {
-                throw std::invalid_argument("Empty input.");
-            }
-            
-            if (!std::all_of(input.begin(), input.end(), ::isdigit))
-            {
-                throw std::invalid_argument("Invalid input! Please enter a number.");
-            }
-            
+            cout << "Invalid input! Please enter a number.\n";
+        }
+        else
+        {
             option = std::stoi(input);
             validInput = true;
-        }
-        catch (const std::invalid_argument &e)
-        {
-            cout << "Error: " << e.what() << ". Please try again.\n";
-        }
-        catch (const std::out_of_range &e)
-        {
-            cout << "Error: Number out of range. Please try again.\n";
         }
     }
     return option;

@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <cstdint>
 #include "Book.cpp"
 #include "Reader.cpp"
 
@@ -44,7 +45,57 @@ class Library
             return nullptr;
         }
 
-    public:
+        // Helper functions for saving library data to file
+        // Write int, bool data to file
+        template<typename T>
+        void writeData(std::ofstream &file, const T &data)
+        {
+            file.write(reinterpret_cast<const char*>(&data), sizeof(data));
+        }
+
+        // Write string data to file
+        void writeStringData(std::ofstream &file, const string &data)
+        {
+            int size = static_cast<int>(data.size());
+            writeData(file, size);
+            file.write(data.c_str(), size);
+        }
+
+        // Helper functions for loading library data from file
+        // Read int, bool data from file
+        template<typename T>
+        bool readData(std::ifstream &file, T &data)
+        {
+            file.read(reinterpret_cast<char*>(&data), sizeof(data));
+            return !file.fail();
+        }
+
+        // Read string data from file
+        bool readStringData(std::ifstream &file, string &data)
+        {
+            int size;
+            
+            if (!readData(file, size))
+            {
+                return false;
+            }
+
+            if (size < 0 || size > 1000000)
+            {
+                return false;
+            }
+
+            std::vector<char> buffer(size);
+            file.read(&buffer[0], size); 
+            if (file.fail())
+            {
+                return false;
+            }
+            data.assign(buffer.begin(), buffer.end());
+
+            return true;
+        }
+        public:
         Library(){};
 
         Library(const std::vector<Book> &books, const std::vector<Reader> &readers)
@@ -300,20 +351,20 @@ class Library
         {
             if(!books.empty())
             {
-                size_t maxIdWidth = 5;
-                size_t maxTitleWidth = 5;
-                size_t maxAuthorWidth = 10;
-                size_t maxGenreWidth = 8;
-                size_t maxYearWidth = 4;
-                size_t maxQuantityWidth = 5;
-                size_t maxAvailableWidth = 8;
+                int maxIdWidth = 7;
+                int maxTitleWidth = 5;
+                int maxAuthorWidth = 6;
+                int maxGenreWidth = 5;
+                int maxYearWidth = 4;
+                int maxQuantityWidth = 8;
+                int maxAvailableWidth = 9;
 
                 for(const auto &book: books)
                 {
-                    maxIdWidth = (std::max)(maxIdWidth, book.getId().length());
-                    maxTitleWidth = (std::max)(maxTitleWidth, book.getTitle().length());
-                    maxAuthorWidth = (std::max)(maxAuthorWidth, book.getAuthor().length());
-                    maxGenreWidth = (std::max)(maxGenreWidth, book.getGenre().length());
+                    maxIdWidth = (std::max)(maxIdWidth, static_cast<int>(book.getId().length()));
+                    maxTitleWidth = (std::max)(maxTitleWidth, static_cast<int>(book.getTitle().length()));
+                    maxAuthorWidth = (std::max)(maxAuthorWidth, static_cast<int>(book.getAuthor().length()));
+                    maxGenreWidth = (std::max)(maxGenreWidth, static_cast<int>(book.getGenre().length()));
                 }
 
                 cout << std::string(maxIdWidth + maxTitleWidth + maxAuthorWidth + maxGenreWidth + maxYearWidth + maxQuantityWidth + maxAvailableWidth + 22, '=') << '\n';
@@ -349,14 +400,14 @@ class Library
         {
             if(!readers.empty())
             {
-                size_t maxIdWidth = 5;
-                size_t maxNameWidth = 10;
-                size_t maxBorrowedWidth = 5;
+                int maxIdWidth = 9;
+                int maxNameWidth = 4;
+                int maxBorrowedWidth = 14;
 
                 for(const auto &reader: readers)
                 {
-                    maxIdWidth = (std::max)(maxIdWidth, reader.getId().length());
-                    maxNameWidth = (std::max)(maxNameWidth, reader.getName().length());
+                    maxIdWidth = (std::max)(maxIdWidth, static_cast<int>(reader.getId().length()));
+                    maxNameWidth = (std::max)(maxNameWidth, static_cast<int>(reader.getName().length()));
                 }
 
                 cout << std::string(maxIdWidth + maxNameWidth + maxBorrowedWidth + 10, '=') << '\n';
@@ -543,36 +594,19 @@ class Library
                 return;
             }
 
-            size_t bookCount = books.size();
-            bookFile.write(reinterpret_cast<const char*>(&bookCount), sizeof(bookCount));
+            uint32_t bookCount = static_cast<uint32_t>(books.size());
+            writeData(bookFile, bookCount);
             cout << "Saving " << bookCount << " books to file.\n";
 
             for(const auto &book : books)
             {
-                size_t idSize = book.getId().size();
-                bookFile.write(reinterpret_cast<const char*>(&idSize), sizeof(idSize));
-                bookFile.write(book.getId().c_str(), idSize);
-
-                size_t titleSize = book.getTitle().size();
-                bookFile.write(reinterpret_cast<const char*>(&titleSize), sizeof(titleSize));
-                bookFile.write(book.getTitle().c_str(), titleSize);
-
-                size_t authorSize = book.getAuthor().size();
-                bookFile.write(reinterpret_cast<const char*>(&authorSize), sizeof(authorSize));
-                bookFile.write(book.getAuthor().c_str(), authorSize);
-
-                size_t genreSize = book.getGenre().size();
-                bookFile.write(reinterpret_cast<const char*>(&genreSize), sizeof(genreSize));
-                bookFile.write(book.getGenre().c_str(), genreSize);
-
-                int year = book.getYear();
-                bookFile.write(reinterpret_cast<const char*>(&year), sizeof(year));
-
-                int quantity = book.getQuantity();
-                bookFile.write(reinterpret_cast<const char*>(&quantity), sizeof(quantity));
-
-                bool isAvailable = book.getIsAvailable();
-                bookFile.write(reinterpret_cast<const char*>(&isAvailable), sizeof(isAvailable));
+                writeStringData(bookFile, book.getId());
+                writeStringData(bookFile, book.getTitle());
+                writeStringData(bookFile, book.getAuthor());
+                writeStringData(bookFile, book.getGenre());
+                writeData(bookFile, book.getYear());
+                writeData(bookFile, book.getQuantity());
+                writeData(bookFile, book.getIsAvailable());
             }
             bookFile.close();
             cout << "Books saved successfully.\n";
@@ -584,28 +618,20 @@ class Library
                 return;
             }
 
-            size_t readerCount = readers.size();
-            readerFile.write(reinterpret_cast<const char*>(&readerCount), sizeof(readerCount));
+            uint32_t readerCount = static_cast<uint32_t>(readers.size());
+            writeData(readerFile, readerCount);
             cout << "Saving " << readerCount << " readers to file.\n";
 
             for(const auto &reader : readers)
             {
-                size_t idSize = reader.getId().size();
-                readerFile.write(reinterpret_cast<const char*>(&idSize), sizeof(idSize));
-                readerFile.write(reader.getId().c_str(), idSize);
+                writeStringData(readerFile, reader.getId());
+                writeStringData(readerFile, reader.getName());
 
-                size_t nameSize = reader.getName().size();
-                readerFile.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
-                readerFile.write(reader.getName().c_str(), nameSize);
-
-                size_t borrowedCount = reader.getBorrowedBooks().size();
-                readerFile.write(reinterpret_cast<const char*>(&borrowedCount), sizeof(borrowedCount));
-
+                uint32_t borrowedCount = static_cast<uint32_t>(reader.getBorrowedBooks().size());
+                writeData(readerFile, borrowedCount);
                 for(const auto &bookID : reader.getBorrowedBooks())
                 {
-                    size_t bookIDSize = bookID.size();
-                    readerFile.write(reinterpret_cast<const char*>(&bookIDSize), sizeof(bookIDSize));
-                    readerFile.write(bookID.c_str(), bookIDSize);
+                    writeStringData(readerFile, bookID);
                 }
             }
             readerFile.close();
@@ -622,40 +648,40 @@ class Library
                 return;
             }
 
-            size_t bookCount;
-            inBookFile.read(reinterpret_cast<char*>(&bookCount), sizeof(bookCount));
+            uint32_t bookCount;
+            if (!readData(inBookFile, bookCount))
+            {
+                cout << "Error: Failed to read book count.\n";
+                inBookFile.close();
+                return;
+            }
             cout << "Loading " << bookCount << " books from file.\n";
 
-            for(size_t i = 0; i < bookCount; ++i)
+            if(bookCount < 0 || bookCount > 1000000)
             {
-                size_t idSize;
-                inBookFile.read(reinterpret_cast<char*>(&idSize), sizeof(idSize));
-                string bookID(idSize, ' ');
-                inBookFile.read(&bookID[0], idSize);
+                cout << "Error: Book count is invalid, possible file corruption.\n";
+                inBookFile.close();
+                return;
+            }
 
-                size_t titleSize;
-                inBookFile.read(reinterpret_cast<char*>(&titleSize), sizeof(titleSize));
-                string title(titleSize, ' ');
-                inBookFile.read(&title[0], titleSize);
-
-                size_t authorSize;
-                inBookFile.read(reinterpret_cast<char*>(&authorSize), sizeof(authorSize));
-                string author(authorSize, ' ');
-                inBookFile.read(&author[0], authorSize);
-
-                size_t genreSize;
-                inBookFile.read(reinterpret_cast<char*>(&genreSize), sizeof(genreSize));
-                string genre(genreSize, ' ');
-                inBookFile.read(&genre[0], genreSize);
-
-                int year;
-                inBookFile.read(reinterpret_cast<char*>(&year), sizeof(year));
-
-                int quantity;
-                inBookFile.read(reinterpret_cast<char*>(&quantity), sizeof(quantity));
-
+            for(int i = 0; i < bookCount; ++i)
+            {
+                string bookID, title, author, genre;
+                int year, quantity;
                 bool isAvailable;
-                inBookFile.read(reinterpret_cast<char*>(&isAvailable), sizeof(isAvailable));
+
+                if (!readStringData(inBookFile, bookID) ||
+                    !readStringData(inBookFile, title) ||
+                    !readStringData(inBookFile, author) ||
+                    !readStringData(inBookFile, genre) ||
+                    !readData(inBookFile, year) ||
+                    !readData(inBookFile, quantity) ||
+                    !readData(inBookFile, isAvailable))
+                {
+                    cout << "Error: Failed to read book data.\n";
+                    inBookFile.close();
+                    return;
+                }
 
                 books.push_back(Book(bookID, title, author, genre, year, quantity, isAvailable));
             }
@@ -669,42 +695,56 @@ class Library
                 return;
             }
 
-            size_t readerCount;
-            inReaderFile.read(reinterpret_cast<char*>(&readerCount), sizeof(readerCount));
+            uint32_t readerCount;
+            if (!readData(inReaderFile, readerCount))
+            {
+                cout << "Error: Failed to read reader count.\n";
+                inReaderFile.close();
+                return;
+            }
             cout << "Loading " << readerCount << " readers from file.\n";
 
-            if (readerCount > 1000000)
+            if (readerCount < 0 || readerCount > 1000000)
             {
-                cout << "Error: Reader count is too large, possible file corruption.\n";
+                cout << "Error: Reader count is invalid, possible file corruption.\n";
                 inReaderFile.close();
                 return;
             }
 
-            for(size_t i = 0; i < readerCount; ++i)
+            for(int i = 0; i < readerCount; ++i)
             {
-                size_t idSize;
-                inReaderFile.read(reinterpret_cast<char*>(&idSize), sizeof(idSize));
-                string readerID(idSize, ' ');
-                inReaderFile.read(&readerID[0], idSize);
+                string readerID, name;
+                uint32_t borrowedCount;
 
-                size_t nameSize;
-                inReaderFile.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
-                string name(nameSize, ' ');
-                inReaderFile.read(&name[0], nameSize);
-
-                size_t borrowedCount;
-                inReaderFile.read(reinterpret_cast<char*>(&borrowedCount), sizeof(borrowedCount));
-
-                std::vector<string> borrowedBooks;
-                for(size_t j = 0; j < borrowedCount; ++j)
+                if (!readStringData(inReaderFile, readerID) ||
+                    !readStringData(inReaderFile, name) ||
+                    !readData(inReaderFile, borrowedCount))
                 {
-                    size_t bookIDSize;
-                    inReaderFile.read(reinterpret_cast<char*>(&bookIDSize), sizeof(bookIDSize));
-                    string bookID(bookIDSize, ' ');
-                    inReaderFile.read(&bookID[0], bookIDSize);
-                    borrowedBooks.push_back(bookID);
+                    cout << "Error: Failed to read reader data.\n";
+                    inReaderFile.close();
+                    return;
                 }
 
+                if (borrowedCount < 0 || borrowedCount > 1000000)
+                {
+                    cout << "Error: Borrowed book count is invalid, possible file corruption.\n";
+                    inReaderFile.close();
+                    return;
+                }
+
+                std::vector<string> borrowedBooks;
+                borrowedBooks.reserve(borrowedCount);
+                for(int j = 0; j < borrowedCount; ++j)
+                {
+                    string bookID;
+                    if (!readStringData(inReaderFile, bookID))
+                    {
+                        cout << "Error: Failed to read borrowed book ID.\n";
+                        inReaderFile.close();
+                        return;
+                    }
+                    borrowedBooks.push_back(bookID);
+                }
                 readers.push_back(Reader(readerID, name, borrowedBooks));
             }
             inReaderFile.close();
