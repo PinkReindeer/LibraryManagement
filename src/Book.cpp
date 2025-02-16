@@ -53,7 +53,7 @@ class Book
             this->quantity = quantity;
         }
 
-        void setIsAvailable(bool &isAvailable)
+        void setIsAvailable(const bool &isAvailable)
         {
             this->isAvailable = isAvailable;
         }
