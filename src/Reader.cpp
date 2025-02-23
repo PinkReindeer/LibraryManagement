@@ -16,7 +16,10 @@ class Reader
         Reader(){};
 
         Reader(const string &readerID, const string &name, const std::vector<string> &borrowedBooks)
-            : readerID(readerID), name(name), borrowedBooks(borrowedBooks) {}
+            : readerID(readerID), name(name), borrowedBooks(borrowedBooks)
+        {
+            cout << "Reader created: " << readerID << '\n';
+        }
 
         void setId(const string &readerID)
         {
